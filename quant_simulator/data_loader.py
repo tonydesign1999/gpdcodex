@@ -22,6 +22,19 @@ def _ensure_akshare():
     return ak
 
 
+def _normalize_period(period: str) -> str:
+    """Map human-friendly values like "5m" to AkShare's expected format.
+
+    AkShare's ``stock_zh_a_hist`` expects minute periods such as ``"1"`` or
+    ``"5"`` rather than ``"1m"``/``"5m"``. Keep daily/weekly/monthly strings
+    unchanged so the caller can still pass through those values if needed.
+    """
+
+    if period.endswith("m") and period[:-1].isdigit():
+        return period[:-1]
+    return period
+
+
 def load_minute_history(symbol: str, start: str, end: str, period: str = "5m") -> pd.DataFrame:
     """
     Load minute-level history for a single symbol.
@@ -36,9 +49,10 @@ def load_minute_history(symbol: str, start: str, end: str, period: str = "5m") -
         DataFrame indexed by datetime with OHLCV and amount.
     """
     ak = _ensure_akshare()
+    ak_period = _normalize_period(period)
     df = ak.stock_zh_a_hist(
         symbol=symbol,
-        period=period,
+        period=ak_period,
         start_date=start,
         end_date=end,
         adjust="qfq",
