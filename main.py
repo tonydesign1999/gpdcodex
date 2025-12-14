@@ -25,7 +25,11 @@ def parse_args() -> argparse.Namespace:
     bt.add_argument("--period", default="5m", help="Bar period, e.g. 1m or 5m")
 
     rt = sub.add_parser("realtime", help="Start realtime polling loop")
-    rt.add_argument("symbols", nargs="+", help="List of stock codes")
+    rt.add_argument(
+        "symbols",
+        nargs="*",
+        help="List of stock codes (leave empty to input interactively)",
+    )
     rt.add_argument("--interval", type=int, default=60, help="Polling interval seconds")
 
     cache = sub.add_parser("cache", help="Download and cache minute history to parquet")
@@ -61,7 +65,19 @@ def run_backtest_cli(args: argparse.Namespace) -> None:
 
 
 def run_realtime_cli(args: argparse.Namespace) -> None:
-    engine = realtime.RealtimeEngine(args.symbols, data_loader.load_spot, interval=args.interval)
+    symbols = list(args.symbols)
+    if not symbols:
+        raw = input(
+            "请输入要实时跟踪的股票代码，使用空格或逗号分隔，例如 600519 000001: "
+        )
+        symbols = [tok for tok in raw.replace(",", " ").split() if tok]
+    if not symbols:
+        print("未提供任何股票代码，实时跟踪未启动。")
+        return
+    realtime.print_strategy_overview()
+    engine = realtime.RealtimeEngine(
+        symbols, data_loader.load_spot, interval=args.interval, require_confirm=True
+    )
     engine.run_forever()
 
 
