@@ -15,8 +15,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="A-share quant simulator using AkShare data (CLI only; no GUI)",
     )
-    # `required=True` ensures running without a subcommand will show help immediately.
-    sub = parser.add_subparsers(dest="command", required=True)
+    # Avoid raising an argparse error when no subcommand is provided; we'll print help ourselves.
+    sub = parser.add_subparsers(dest="command")
 
     bt = sub.add_parser("backtest", help="Run minute-level backtest")
     bt.add_argument("symbol", help="Stock code, e.g. 600000")
@@ -35,7 +35,13 @@ def parse_args() -> argparse.Namespace:
     cache.add_argument("--period", default="5m")
     cache.add_argument("--out", type=Path, default=None, help="Optional output path")
 
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.command is None:
+        # Running without a subcommand should show help and exit gracefully rather than erroring.
+        parser.print_help()
+        parser.exit(0)
+
+    return args
 
 
 def run_backtest_cli(args: argparse.Namespace) -> None:
