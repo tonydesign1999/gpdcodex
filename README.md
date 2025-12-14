@@ -1,6 +1,6 @@
 # gpdcodex
 
-可直接运行的 A 股量化交易模拟器示例，基于 [AkShare](https://akshare.akfamily.xyz/) 获取行情，包含回测与简易实时轮询。
+可直接运行的 A 股量化交易模拟器示例，基于 [AkShare](https://akshare.akfamily.xyz/) 获取行情，包含回测与简易实时轮询（纯命令行，无图形界面）。
 
 ## 环境准备
 ```bash
@@ -16,6 +16,8 @@ pip install -r requirements.txt
 python main.py -h
 ```
 
+> 说明：本项目是 **命令行工具**，不会弹出窗口或图形界面。执行命令后，终端会输出进度与下单日志；如果没有任何输出，通常是命令参数缺失或网络/依赖问题，参见下方故障排查。
+
 ### 1) 分钟级回测
 ```bash
 python main.py backtest 600000 20240101 20240131 --period 5m
@@ -27,6 +29,12 @@ python main.py backtest 600000 20240101 20240131 --period 5m
 python main.py realtime 600000 000001 --interval 60
 ```
 每隔 60 秒拉取快照，基于策略自动发出买卖（T+1 限制）。
+运行时会在控制台打印最新权益和买卖指令，例如：
+```
+Starting realtime engine... Press Ctrl+C to stop.
+[2024-01-10 10:00:00] Equity: 1000000.00
+BUY 600000 500 @ 10.23
+```
 
 ### 3) 缓存行情到本地
 ```bash
@@ -42,3 +50,9 @@ python main.py cache 600000 20240101 20240131 --period 5m --out data.parquet
 - `main.py`: CLI 入口。
 
 > 说明：AkShare 需联网获取数据；如果在受限网络下运行，请预先在有网络的环境缓存数据再离线使用。
+
+## 常见问题
+
+- **运行 `python main.py` 没反应？** 需要带子命令（`backtest`/`realtime`/`cache`），否则 argparse 会直接打印帮助并退出。
+- **AkShare 未安装或网络受限？** 请先在联网环境执行 `pip install -r requirements.txt`，并确认可以访问 AkShare 数据接口。
+- **实时模式无输出？** 可能是快照数据为空（网络或代码不在沪深 A 股范围），终端会提示；请更换可交易的 A 股代码并检查网络。

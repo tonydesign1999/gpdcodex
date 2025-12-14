@@ -12,8 +12,11 @@ from quant_simulator import backtest, data_loader, realtime
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="A-share quant simulator using AkShare data")
-    sub = parser.add_subparsers(dest="command")
+    parser = argparse.ArgumentParser(
+        description="A-share quant simulator using AkShare data (CLI only; no GUI)",
+    )
+    # `required=True` ensures running without a subcommand will show help immediately.
+    sub = parser.add_subparsers(dest="command", required=True)
 
     bt = sub.add_parser("backtest", help="Run minute-level backtest")
     bt.add_argument("symbol", help="Stock code, e.g. 600000")
@@ -73,8 +76,6 @@ def main() -> None:
         run_realtime_cli(args)
     elif args.command == "cache":
         run_cache_cli(args)
-    else:
-        print("No command provided. Use -h for help.")
 
 
 if __name__ == "__main__":
