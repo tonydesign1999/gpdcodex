@@ -1,6 +1,6 @@
 # gpdcodex
 
-可直接运行的 A 股量化交易模拟器示例，基于 [AkShare](https://akshare.akfamily.xyz/) 获取行情，包含回测与简易实时轮询（纯命令行，无图形界面）。
+可直接运行的 A 股量化交易模拟器示例，基于 [AkShare](https://akshare.akfamily.xyz/) 获取行情，包含回测与简易实时轮询（纯命令行，无图形界面）。额外提供一个独立的 Tkinter 窗口工具，用于批量导出个股资金流（moneyflow_table_gui.py）。
 
 ## 环境准备
 ```bash
@@ -40,6 +40,18 @@ BUY 600000 500 @ 10.23
 ```bash
 python main.py cache 600000 20240101 20240131 --period 5m --out data.parquet
 ```
+
+### 4) 资金流导出 GUI（可选）
+
+`moneyflow_table_gui.py` 是一个单独的 Tkinter 窗口工具，输入股票代码即可生成最近 1/3/5/10/20 日的主力净流入（亿元）表格并导出为 Excel。
+
+```bash
+python moneyflow_table_gui.py
+```
+
+提示：
+- 默认禁用环境代理，避免请求被代理拦截；如果需要自定义代理，请自行修改脚本开头的环境变量处理。
+- 首次运行会安装 Tkinter 依赖，Windows/macOS 自带；Linux 服务器如无图形环境则无法弹窗。
 
 ## 代码结构
 - `quant_simulator/data_loader.py`: 行情获取与缓存。
